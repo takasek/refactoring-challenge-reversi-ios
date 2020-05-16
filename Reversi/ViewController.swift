@@ -144,13 +144,13 @@ extension BoardView {
 
     /// `side` で指定された色のディスクを置ける盤上のセルの座標をすべて返します。
     /// - Returns: `side` で指定された色のディスクを置ける盤上のすべてのセルの座標の配列です。
-    func validMoves(for side: Disk) -> [(x: Int, y: Int)] {
-        var coordinates: [(Int, Int)] = []
+    func validMoves(for side: Disk) -> [Point] {
+        var coordinates: [Point] = []
 
         for y in yRange {
             for x in xRange {
                 if canPlaceDisk(side, atX: x, y: y) {
-                    coordinates.append((x, y))
+                    coordinates.append(Point(x: x, y: y))
                 }
             }
         }
@@ -287,7 +287,7 @@ extension ViewController {
     /// "Computer" が選択されている場合のプレイヤーの行動を決定します。
     func playTurnOfComputer() {
         guard let turn = self.turn else { preconditionFailure() }
-        let (x, y) = boardView.validMoves(for: turn).randomElement()!
+        let p = boardView.validMoves(for: turn).randomElement()!
 
         playerActivityIndicators[turn.index].startAnimating()
 
@@ -302,7 +302,7 @@ extension ViewController {
             if canceller.isCancelled { return }
             cleanUp()
 
-            try! self.placeDisk(turn, atX: x, y: y, animated: true) { [weak self] _ in
+            try! self.placeDisk(turn, atX: p.x, y: p.y, animated: true) { [weak self] _ in
                 try? self?.saveGame()
                 self?.updateCountLabels()
                 self?.nextTurn()

@@ -8,6 +8,11 @@
 
 import UIKit
 
+struct Point: Equatable {
+    let x: Int
+    let y: Int
+}
+
 struct State: Equatable {
     let turn: Disk?
     let players: [Player]
