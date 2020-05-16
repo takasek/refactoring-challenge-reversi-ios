@@ -10,16 +10,40 @@
 // import Foundation
 import UIKit
 
-class Repository {
-    init() {}
-
-    enum FileIOError: Error {
-        case write(path: String, cause: Error?)
-        case read(path: String, cause: Error?)
-    }
-
+enum FileIOError: Error {
+    case write(path: String, cause: Error?)
+    case read(path: String, cause: Error?)
+}
+protocol DataStore {
+    mutating func write(string: String) throws
+    func read() throws -> String
+    func readError() -> Error
+}
+class DataStoreImpl: DataStore {
     private var path: String {
         (NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true).first! as NSString).appendingPathComponent("Game")
+    }
+    func write(string: String) throws {
+        do {
+            try string.write(toFile: path, atomically: true, encoding: .utf8)
+        } catch let error {
+            throw FileIOError.read(path: path, cause: error)
+        }
+    }
+    func read() throws -> String {
+        try String(contentsOfFile: path, encoding: .utf8)
+    }
+
+    func readError() -> Error {
+        FileIOError.read(path: path, cause: nil)
+    }
+}
+
+class Repository {
+    private(set) var dataStore: DataStore
+
+    init(dataStore: DataStore) {
+        self.dataStore = dataStore
     }
 
     // TODO: 事前条件を狭める
@@ -40,11 +64,7 @@ class Repository {
             output += "\n"
         }
 
-        do {
-            try output.write(toFile: path, atomically: true, encoding: .utf8)
-        } catch let error {
-            throw FileIOError.read(path: path, cause: error)
-        }
+        try dataStore.write(string: output)
     }
 
     // TODO: UIコンポーネントの参照をたらい回ししない
@@ -53,11 +73,11 @@ class Repository {
 
         // 以下、ViewControllerのloadGameの内容を可能な限りそのままコピペ
 
-        let input = try String(contentsOfFile: path, encoding: .utf8)
+        let input = try dataStore.read()
         var lines: ArraySlice<Substring> = input.split(separator: "\n")[...]
 
         guard var line = lines.popFirst() else {
-            throw FileIOError.read(path: path, cause: nil)
+            throw dataStore.readError()
         }
 
         do { // turn
@@ -65,7 +85,7 @@ class Repository {
                 let diskSymbol = line.popFirst(),
                 let disk = Optional<Disk>(symbol: diskSymbol.description)
                 else {
-                    throw FileIOError.read(path: path, cause: nil)
+                    throw dataStore.readError()
             }
             turn = disk
         }
@@ -77,14 +97,14 @@ class Repository {
                 let playerNumber = Int(playerSymbol.description),
                 let player = Player(rawValue: playerNumber)
                 else {
-                    throw FileIOError.read(path: path, cause: nil)
+                    throw dataStore.readError()
             }
             playerControls[side.index].selectedSegmentIndex = player.rawValue
         }
 
         do { // board
             guard lines.count == boardView.height else {
-                throw FileIOError.read(path: path, cause: nil)
+                throw dataStore.readError()
             }
 
             var y = 0
@@ -96,12 +116,12 @@ class Repository {
                     x += 1
                 }
                 guard x == boardView.width else {
-                    throw FileIOError.read(path: path, cause: nil)
+                    throw dataStore.readError()
                 }
                 y += 1
             }
             guard y == boardView.height else {
-                throw FileIOError.read(path: path, cause: nil)
+                throw dataStore.readError()
             }
         }
 

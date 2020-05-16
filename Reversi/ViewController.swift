@@ -18,6 +18,8 @@ class ViewController: UIViewController {
     @IBOutlet private var countLabels: [UILabel]!
     @IBOutlet private var playerActivityIndicators: [UIActivityIndicatorView]!
 
+    private let repository = Repository(dataStore: DataStoreImpl())
+
     /// どちらの色のプレイヤーのターンかを表します。ゲーム終了時は `nil` です。
     private var turn: Disk? = .dark
 
@@ -402,12 +404,12 @@ extension ViewController: BoardViewDelegate {
 extension ViewController {
     /// ゲームの状態をファイルに書き出し、保存します。
     func saveGame() throws {
-        try Repository().saveGame(turn: turn, playerControls: playerControls, boardView: boardView)
+        try repository.saveGame(turn: turn, playerControls: playerControls, boardView: boardView)
     }
 
     /// ゲームの状態をファイルから読み込み、復元します。
     func loadGame() throws {
-        let turn = try Repository().loadGame(playerControls: playerControls, boardView: boardView)
+        let turn = try repository.loadGame(playerControls: playerControls, boardView: boardView)
 
         self.turn = turn
 
