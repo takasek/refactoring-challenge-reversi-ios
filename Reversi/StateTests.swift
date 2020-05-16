@@ -74,6 +74,17 @@ class StateTests: XCTestCase {
         XCTAssertEqual(v.sideWithMoreDisks(), .dark)
     }
 
+    func test_flippedDiskCoordinatesByPlacingDisk() {
+        // TODO: Stateのメソッドとする
+        let v = BoardView()
+        try! v.applyWithoutAnimation(State(_10_10_and: "--------").board)
+        XCTAssertEqual(v.flippedDiskCoordinatesByPlacingDisk(.light, atX: 1, y: 1), [
+            Point(2, 2),
+            Point(1, 2)
+        ])
+        XCTAssertEqual(v.flippedDiskCoordinatesByPlacingDisk(.dark, atX: 1, y: 1), [])
+    }
+
     func test_canPlaceDisk() {
         // TODO: Stateのメソッドとする
         let v = BoardView()
