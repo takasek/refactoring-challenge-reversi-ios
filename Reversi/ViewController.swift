@@ -14,6 +14,12 @@ class ViewController: UIViewController {
     /// その際に `messageDiskSize` に保管された値を使います。
     private var messageDiskSize: CGFloat!
 
+    func setMessageDiskViewHidden(_ isHidden: Bool) {
+        messageDiskSizeConstraint.constant = isHidden
+            ? 0
+            : messageDiskSize
+    }
+
     @IBOutlet private var playerControls: [UISegmentedControl]!
     @IBOutlet private var countLabels: [UILabel]!
     @IBOutlet private var playerActivityIndicators: [UIActivityIndicatorView]!
@@ -321,16 +327,16 @@ extension ViewController {
     func updateMessageViews() {
         switch turn {
         case .some(let side):
-            messageDiskSizeConstraint.constant = messageDiskSize
+            setMessageDiskViewHidden(false)
             messageDiskView.disk = side
             messageLabel.text = "'s turn"
         case .none:
             if let winner = self.sideWithMoreDisks() {
-                messageDiskSizeConstraint.constant = messageDiskSize
+                setMessageDiskViewHidden(true)
                 messageDiskView.disk = winner
                 messageLabel.text = " won"
             } else {
-                messageDiskSizeConstraint.constant = 0
+                setMessageDiskViewHidden(true)
                 messageLabel.text = "Tied"
             }
         }
