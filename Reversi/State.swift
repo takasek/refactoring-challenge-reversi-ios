@@ -17,7 +17,8 @@ struct Point: Equatable {
 
 struct State: Equatable {
     let turn: Disk?
-    let players: [Player]
+    let playerA: Player
+    let playerB: Player
     let board: [[Disk?]]
 
     var yRange: Range<Int> { 0 ..< board.count }
@@ -105,7 +106,8 @@ struct State: Equatable {
     var description: String {
         var output: String = ""
         output += turn.symbol
-        output += players.reduce("") { $0 + $1.rawValue.description }
+        output += playerA.rawValue.description
+        output += playerB.rawValue.description
         output += "\n"
 
         for line in board {
@@ -137,29 +139,25 @@ extension State {
         }
 
         // players
-        var players: [Player] = []
-        for _ in Disk.sides {
-            guard
-                let playerSymbol = line.popFirst(),
-                let playerNumber = Int(playerSymbol.description),
-                let player = Player(rawValue: playerNumber)
-                else {
-                    return nil
-            }
-            players.append(player)
+        func popPlayerFromLine() -> Player? {
+            line
+                .popFirst()
+                .flatMap { Int($0.description) }
+                .flatMap { Player(rawValue: $0) }
         }
-        self.players = players
+        guard let a = popPlayerFromLine() else { return nil }
+        playerA = a
+        guard let b = popPlayerFromLine() else { return nil }
+        playerB = b
 
-        do { // board
-            var board: [[Disk?]] = []
-            while let line = lines.popFirst() {
-                var boardLine: [Disk?] = []
-                for character in line {
-                    boardLine.append(Disk?(symbol: "\(character)").flatMap { $0 })
-                }
-                board.append(boardLine)
+        var board: [[Disk?]] = []
+        while let line = lines.popFirst() {
+            var boardLine: [Disk?] = []
+            for character in line {
+                boardLine.append(Disk?(symbol: "\(character)").flatMap { $0 })
             }
-            self.board = board
+            board.append(boardLine)
         }
+        self.board = board
     }
 }

@@ -14,7 +14,8 @@ class StateTests: XCTestCase {
     func testDescription() {
         let state = State(
             turn: .none,
-            players: [.manual, .computer],
+            playerA: .manual,
+            playerB: .computer,
             board: [
                 [nil, .dark, .light, nil],
                 [.dark, .dark, .dark, .dark],
@@ -33,7 +34,8 @@ class StateTests: XCTestCase {
     func test_init_文字列から適切に復元可能() {
         let state1 = State(
             turn: .none,
-            players: [.manual, .computer],
+            playerA: .manual,
+            playerB: .computer,
             board: [
                 [nil, .dark, .light, nil],
                 [.dark, .dark, .dark, .dark],

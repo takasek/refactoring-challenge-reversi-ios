@@ -65,7 +65,8 @@ extension ViewController {
     var currentState: State {
         State(
             turn: turn,
-            players: playerControls.map { $0.player() },
+            playerA: playerControls[0].player(),
+            playerB: playerControls[1].player(),
             board: boardView.board()
         )
     }
@@ -339,9 +340,9 @@ extension ViewController {
 
         self.turn = state.turn
 
-        zip(playerControls, state.players).forEach { (c, p) in
-            c.apply(player: p)
-        }
+        playerControls[0].apply(player: state.playerA)
+        playerControls[1].apply(player: state.playerB)
+
         try boardView.applyWithoutAnimation(state.board)
 
         updateMessageViews(state: state)
