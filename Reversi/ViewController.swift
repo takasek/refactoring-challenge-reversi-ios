@@ -409,9 +409,12 @@ extension ViewController {
 
     /// ゲームの状態をファイルから読み込み、復元します。
     func loadGame() throws {
-        let turn = try repository.loadGame(playerControls: playerControls, boardView: boardView)
+        let state = try repository.loadGame()
 
-        self.turn = turn
+        self.turn = state.turn
+
+        playerControls.apply(players: state.players)
+        try boardView.applyWithoutAnimation(state.board)
 
         updateMessageViews()
         updateCountLabels()

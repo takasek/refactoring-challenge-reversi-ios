@@ -67,20 +67,10 @@ class Repository {
         try dataStore.write(string: output)
     }
 
-    // TODO: UIコンポーネントの参照をたらい回ししない
-    func loadGame(playerControls: [UISegmentedControl], boardView: BoardView) throws -> Disk? {
-
-        // デシリアライズはState.initに置きかえ可能
-
+    func loadGame() throws -> State {
         guard let state = State(input: try dataStore.read()) else {
             throw dataStore.readError()
         }
-
-        // UIへの適用
-        playerControls.apply(players: state.players)
-        try boardView.applyWithoutAnimation(state.board)
-
-        // 値渡しになるのはturnだけ
-        return state.turn
+        return state
     }
 }
