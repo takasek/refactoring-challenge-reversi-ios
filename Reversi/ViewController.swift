@@ -59,16 +59,17 @@ class ViewController: UIViewController {
 
 // MARK: Reversi logics
 
-extension ViewController {
+// TODO: これらのメソッドをState側に寄せる。暫定的にViewControllerからBoardViewに寄せる。
+extension BoardView {
     /// `side` で指定された色のディスクが盤上に置かれている枚数を返します。
     /// - Parameter side: 数えるディスクの色です。
     /// - Returns: `side` で指定された色のディスクの、盤上の枚数です。
     func countDisks(of side: Disk) -> Int {
         var count = 0
 
-        for y in boardView.yRange {
-            for x in boardView.xRange {
-                if boardView.diskAt(x: x, y: y) == side {
+        for y in yRange {
+            for x in xRange {
+                if diskAt(x: x, y: y) == side {
                     count +=  1
                 }
             }
@@ -90,7 +91,7 @@ extension ViewController {
         }
     }
 
-    private func flippedDiskCoordinatesByPlacingDisk(_ disk: Disk, atX x: Int, y: Int) -> [(Int, Int)] {
+    fileprivate func flippedDiskCoordinatesByPlacingDisk(_ disk: Disk, atX x: Int, y: Int) -> [(Int, Int)] {
         let directions = [
             (x: -1, y: -1),
             (x:  0, y: -1),
@@ -102,7 +103,7 @@ extension ViewController {
             (x: -1, y:  1),
         ]
 
-        guard boardView.diskAt(x: x, y: y) == nil else {
+        guard diskAt(x: x, y: y) == nil else {
             return []
         }
 
@@ -117,7 +118,7 @@ extension ViewController {
                 x += direction.x
                 y += direction.y
 
-                switch (disk, boardView.diskAt(x: x, y: y)) { // Uses tuples to make patterns exhaustive
+                switch (disk, diskAt(x: x, y: y)) { // Uses tuples to make patterns exhaustive
                 case (.dark, .some(.dark)), (.light, .some(.light)):
                     diskCoordinates.append(contentsOf: diskCoordinatesInLine)
                     break flipping
@@ -146,8 +147,8 @@ extension ViewController {
     func validMoves(for side: Disk) -> [(x: Int, y: Int)] {
         var coordinates: [(Int, Int)] = []
 
-        for y in boardView.yRange {
-            for x in boardView.xRange {
+        for y in yRange {
+            for x in xRange {
                 if canPlaceDisk(side, atX: x, y: y) {
                     coordinates.append((x, y))
                 }
@@ -156,7 +157,8 @@ extension ViewController {
 
         return coordinates
     }
-
+}
+extension ViewController {
     /// `x`, `y` で指定されたセルに `disk` を置きます。
     /// - Parameter x: セルの列です。
     /// - Parameter y: セルの行です。
@@ -166,7 +168,7 @@ extension ViewController {
     ///     もし `animated` が `false` の場合、このクロージャは次の run loop サイクルの初めに実行されます。
     /// - Throws: もし `disk` を `x`, `y` で指定されるセルに置けない場合、 `DiskPlacementError` を `throw` します。
     func placeDisk(_ disk: Disk, atX x: Int, y: Int, animated isAnimated: Bool, completion: ((Bool) -> Void)? = nil) throws {
-        let diskCoordinates = flippedDiskCoordinatesByPlacingDisk(disk, atX: x, y: y)
+        let diskCoordinates = boardView.flippedDiskCoordinatesByPlacingDisk(disk, atX: x, y: y)
         if diskCoordinates.isEmpty {
             throw DiskPlacementError(disk: disk, x: x, y: y)
         }
@@ -257,8 +259,8 @@ extension ViewController {
 
         turn.flip()
 
-        if validMoves(for: turn).isEmpty {
-            if validMoves(for: turn.flipped).isEmpty {
+        if boardView.validMoves(for: turn).isEmpty {
+            if boardView.validMoves(for: turn.flipped).isEmpty {
                 self.turn = nil
                 updateMessageViews()
             } else {
@@ -285,7 +287,7 @@ extension ViewController {
     /// "Computer" が選択されている場合のプレイヤーの行動を決定します。
     func playTurnOfComputer() {
         guard let turn = self.turn else { preconditionFailure() }
-        let (x, y) = validMoves(for: turn).randomElement()!
+        let (x, y) = boardView.validMoves(for: turn).randomElement()!
 
         playerActivityIndicators[turn.index].startAnimating()
 
@@ -317,7 +319,7 @@ extension ViewController {
     /// 各プレイヤーの獲得したディスクの枚数を表示します。
     func updateCountLabels() {
         for side in Disk.sides {
-            countLabels[side.index].text = "\(countDisks(of: side))"
+            countLabels[side.index].text = "\(boardView.countDisks(of: side))"
         }
     }
 
@@ -329,7 +331,7 @@ extension ViewController {
             messageDiskView.disk = side
             messageLabel.text = "'s turn"
         case .none:
-            if let winner = self.sideWithMoreDisks() {
+            if let winner = boardView.sideWithMoreDisks() {
                 setMessageDiskViewHidden(true)
                 messageDiskView.disk = winner
                 messageLabel.text = " won"
