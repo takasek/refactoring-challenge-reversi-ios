@@ -556,7 +556,7 @@ extension Optional where Wrapped == Disk {
         }
     }
 
-    fileprivate var symbol: String {
+    var symbol: String {
         switch self {
         case .some(.dark):
             return "x"
