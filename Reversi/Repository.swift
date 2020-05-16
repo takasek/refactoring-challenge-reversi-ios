@@ -91,7 +91,8 @@ class Repository {
         }
 
         // players
-        for side in Disk.sides {
+        var players: [Player] = []
+        for _ in Disk.sides {
             guard
                 let playerSymbol = line.popFirst(),
                 let playerNumber = Int(playerSymbol.description),
@@ -99,19 +100,33 @@ class Repository {
                 else {
                     throw dataStore.readError()
             }
-            playerControls[side.index].selectedSegmentIndex = player.rawValue
+            players.append(player)
         }
 
+        var board: [[Disk?]] = []
+        while let line = lines.popFirst() {
+            var boardLine: [Disk?] = []
+            for character in line {
+                boardLine.append(Disk?(symbol: "\(character)").flatMap { $0 })
+            }
+            board.append(boardLine)
+        }
+
+        // デシリアイズとUIへの適用を分離
+
+        for (side, player) in zip(Disk.sides, players) {
+            playerControls[side.index].selectedSegmentIndex = player.rawValue
+        }
         do { // board
-            guard lines.count == boardView.height else {
+            var boardSlice = ArraySlice(board)
+            guard board.count == boardView.height else {
                 throw dataStore.readError()
             }
 
             var y = 0
-            while let line = lines.popFirst() {
+            while let boardLine = boardSlice.popFirst() {
                 var x = 0
-                for character in line {
-                    let disk = Disk?(symbol: "\(character)").flatMap { $0 }
+                for disk in boardLine {
                     boardView.setDisk(disk, atX: x, y: y, animated: false)
                     x += 1
                 }
