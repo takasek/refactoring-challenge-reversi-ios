@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		904055D1246FB00400BE4CDA /* StateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904055D0246FB00400BE4CDA /* StateTests.swift */; };
+		904055D3246FB78500BE4CDA /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904055D2246FB78500BE4CDA /* Repository.swift */; };
 		90D401CD2452892C00EF8F04 /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90D401CC2452892C00EF8F04 /* State.swift */; };
 		D636B39F23D35043007F370F /* DiskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D636B39E23D35043007F370F /* DiskView.swift */; };
 		D642BDB423A9FE4500396732 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D642BDB323A9FE4500396732 /* AppDelegate.swift */; };
@@ -34,6 +35,7 @@
 
 /* Begin PBXFileReference section */
 		904055D0246FB00400BE4CDA /* StateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateTests.swift; sourceTree = "<group>"; };
+		904055D2246FB78500BE4CDA /* Repository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
 		90D401CC2452892C00EF8F04 /* State.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = State.swift; sourceTree = "<group>"; };
 		D636B39E23D35043007F370F /* DiskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskView.swift; sourceTree = "<group>"; };
 		D642BDB023A9FE4500396732 /* Reversi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reversi.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -114,6 +116,7 @@
 				D642BDB723A9FE4500396732 /* ViewController.swift */,
 				90D401CC2452892C00EF8F04 /* State.swift */,
 				904055D0246FB00400BE4CDA /* StateTests.swift */,
+				904055D2246FB78500BE4CDA /* Repository.swift */,
 				D642BDB923A9FE4500396732 /* Main.storyboard */,
 				D642BDBC23A9FE4700396732 /* Assets.xcassets */,
 				D642BDBE23A9FE4700396732 /* LaunchScreen.storyboard */,
@@ -242,6 +245,7 @@
 				D642BDDC23AA137C00396732 /* BoardView.swift in Sources */,
 				D642BDB423A9FE4500396732 /* AppDelegate.swift in Sources */,
 				D642BDB623A9FE4500396732 /* SceneDelegate.swift in Sources */,
+				904055D3246FB78500BE4CDA /* Repository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
