@@ -493,11 +493,9 @@ extension ViewController {
 
 // MARK: Additional types
 
-extension ViewController {
-    enum Player: Int {
-        case manual = 0
-        case computer = 1
-    }
+enum Player: Int {
+    case manual = 0
+    case computer = 1
 }
 
 final class Canceller {

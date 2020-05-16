@@ -14,7 +14,7 @@ class StateTests: XCTestCase {
     func testDescription() {
         let state = State(
             turn: .none,
-            playerControlsSegmentIndices: [1,1],
+            players: [.manual, .computer],
             board: [
                 [nil, .dark, .light, nil],
                 [.dark, .dark, .dark, .dark],
@@ -22,7 +22,7 @@ class StateTests: XCTestCase {
                 [nil, nil, nil, nil],
         ])
         XCTAssertEqual(state.description, """
-            -11
+            -01
             -xo-
             xxxx
             oooo

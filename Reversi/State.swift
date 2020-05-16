@@ -10,13 +10,13 @@ import UIKit
 
 struct State {
     let turn: Disk?
-    let playerControlsSegmentIndices: [Int]
+    let players: [Player]
     let board: [[Disk?]]
 
     var description: String {
         var output: String = ""
         output += turn.symbol
-        output += playerControlsSegmentIndices.reduce("") { $0 + $1.description }
+        output += players.reduce("") { $0 + $1.rawValue.description }
         output += "\n"
 
         for line in board {
@@ -32,7 +32,9 @@ struct State {
 extension State {
     init(turn: Disk?, playerControls: [UISegmentedControl], boardView: BoardView) {
         self.turn = turn
-        self.playerControlsSegmentIndices = Disk.sides.map { playerControls[$0.index].selectedSegmentIndex }
+        self.players = Disk.sides
+            .map { playerControls[$0.index].selectedSegmentIndex }
+            .map { Player(rawValue: $0)! }
 
         var board: [[Disk?]] = []
         for y in boardView.yRange {
