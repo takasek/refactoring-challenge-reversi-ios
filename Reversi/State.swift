@@ -8,7 +8,7 @@
 
 import UIKit
 
-struct State {
+struct State: Equatable {
     let turn: Disk?
     let players: [Player]
     let board: [[Disk?]]
@@ -45,5 +45,49 @@ extension State {
             board.append(line)
         }
         self.board = board
+    }
+
+    init?(input: String) {
+        var lines: ArraySlice<Substring> = input.split(separator: "\n")[...]
+
+        guard var line = lines.popFirst() else {
+            return nil
+        }
+
+        do { // turn
+            guard
+                let diskSymbol = line.popFirst(),
+                let disk = Optional<Disk>(symbol: diskSymbol.description)
+                else {
+                    return nil
+            }
+            turn = disk
+        }
+
+        // players
+        var players: [Player] = []
+        for _ in Disk.sides {
+            guard
+                let playerSymbol = line.popFirst(),
+                let playerNumber = Int(playerSymbol.description),
+                let player = Player(rawValue: playerNumber)
+                else {
+                    return nil
+            }
+            players.append(player)
+        }
+        self.players = players
+
+        do { // board
+            var board: [[Disk?]] = []
+            while let line = lines.popFirst() {
+                var boardLine: [Disk?] = []
+                for character in line {
+                    boardLine.append(Disk?(symbol: "\(character)").flatMap { $0 })
+                }
+                board.append(boardLine)
+            }
+            self.board = board
+        }
     }
 }

@@ -541,7 +541,7 @@ extension Disk {
 }
 
 extension Optional where Wrapped == Disk {
-    fileprivate init?<S: StringProtocol>(symbol: S) {
+    init?<S: StringProtocol>(symbol: S) {
         switch symbol {
         case "x":
             self = .some(.dark)
