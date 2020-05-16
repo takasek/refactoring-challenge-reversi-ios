@@ -28,29 +28,6 @@ class RepositoryTests: XCTestCase {
     }
 
     func test_loadGame() {
-//        let playerControls: [UISegmentedControl] = [0,1].map { _ in
-//            let x = UISegmentedControl(items: ["0", "1"])
-//            x.selectedSegmentIndex = 0
-//            return x
-//        }
-//        let boardView = BoardView()
-//
-//        // 初期状態の確認
-//        XCTAssertEqual(
-//            State(turn: .none, playerControls: playerControls, boardView: boardView).description,
-//            """
-//            -00
-//            --------
-//            --------
-//            --------
-//            ---ox---
-//            ---xo---
-//            --------
-//            --------
-//            --------\n
-//            """
-//        )
-
         // ロード後の確認
         dataStore.string = """
         x11
@@ -69,6 +46,32 @@ class RepositoryTests: XCTestCase {
         XCTAssertEqual(
             state.description,
             dataStore.string
+        )
+    }
+
+    func test_saveGame() {
+        let playerControls: [UISegmentedControl] = [0,1].map { _ in
+            let x = UISegmentedControl(items: ["0", "1"])
+            x.selectedSegmentIndex = 0
+            return x
+        }
+        let boardView = BoardView()
+
+        try! repository.saveGame(turn: .none, playerControls: playerControls, boardView: boardView)
+
+        XCTAssertEqual(
+            dataStore.string,
+            """
+            -00
+            --------
+            --------
+            --------
+            ---ox---
+            ---xo---
+            --------
+            --------
+            --------\n
+            """
         )
     }
 }
