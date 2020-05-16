@@ -6,9 +6,7 @@
 //  Copyright © 2020 Yuta Koshizawa. All rights reserved.
 //
 
-// TODO: UIKitに依存しないようにする。今はシグネチャをできるだけ変えないため許容
-// import Foundation
-import UIKit
+import Foundation
 
 enum FileIOError: Error {
     case write(path: String, cause: Error?)
@@ -46,13 +44,7 @@ class Repository {
         self.dataStore = dataStore
     }
 
-    // TODO: 事前条件を狭める
-    func saveGame(turn: Disk?, playerControls: [UISegmentedControl], boardView: BoardView) throws {
-        let players = playerControls.map { $0.player() }
-        let board = boardView.board()
-
-        let state = State(turn: turn, players: players, board: board)
-
+    func saveGame(state: State) throws {
         try dataStore.write(string: state.description)
     }
 

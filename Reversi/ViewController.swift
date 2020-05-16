@@ -404,7 +404,11 @@ extension ViewController: BoardViewDelegate {
 extension ViewController {
     /// ゲームの状態をファイルに書き出し、保存します。
     func saveGame() throws {
-        try repository.saveGame(turn: turn, playerControls: playerControls, boardView: boardView)
+        try repository.saveGame(state: State(
+            turn: turn,
+            players: playerControls.map { $0.player() },
+            board: boardView.board()
+        ))
     }
 
     /// ゲームの状態をファイルから読み込み、復元します。

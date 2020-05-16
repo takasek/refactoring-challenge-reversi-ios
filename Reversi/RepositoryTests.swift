@@ -50,28 +50,25 @@ class RepositoryTests: XCTestCase {
     }
 
     func test_saveGame() {
-        let playerControls: [UISegmentedControl] = [0,1].map { _ in
-            let x = UISegmentedControl(items: ["0", "1"])
-            x.selectedSegmentIndex = 0
-            return x
-        }
-        let boardView = BoardView()
+        let string = """
+        -00
+        --------
+        --------
+        --------
+        ---ox---
+        ---xo---
+        --------
+        --------
+        --------\n
+        """
 
-        try! repository.saveGame(turn: .none, playerControls: playerControls, boardView: boardView)
+        let state = State(input: string)!
+
+        try! repository.saveGame(state: state)
 
         XCTAssertEqual(
             dataStore.string,
-            """
-            -00
-            --------
-            --------
-            --------
-            ---ox---
-            ---xo---
-            --------
-            --------
-            --------\n
-            """
+            string
         )
     }
 }
