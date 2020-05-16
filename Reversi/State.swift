@@ -16,7 +16,9 @@ struct Point: Equatable {
 }
 
 struct State: Equatable {
-    let turn: Disk?
+    /// どちらの色のプレイヤーのターンかを表します。ゲーム終了時は `nil` です。
+    var turn: Disk?
+
     let playerA: Player
     let playerB: Player
     let board: [[Disk?]]
@@ -121,6 +123,24 @@ struct State: Equatable {
 }
 
 extension State {
+    static func new(size: Int) -> Self {
+        assert(size.isMultiple(of: 2))
+        assert(size >= 2)
+
+        return self.init(turn: .dark, playerA: .manual, playerB: .manual, board: {
+            var blankBoard = [[Disk?]](
+                repeating: [Disk?](repeating: nil, count: size),
+                count: size
+            )
+            let largerIndex = size / 2
+            blankBoard[largerIndex][largerIndex] = .light
+            blankBoard[largerIndex][largerIndex - 1] = .dark
+            blankBoard[largerIndex - 1][largerIndex] = .dark
+            blankBoard[largerIndex - 1][largerIndex - 1] = .light
+
+            return blankBoard
+        }())
+    }
     init?(input: String) {
         var lines: ArraySlice<Substring> = input.split(separator: "\n")[...]
 

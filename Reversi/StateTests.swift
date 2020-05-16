@@ -54,6 +54,31 @@ class StateTests: XCTestCase {
         XCTAssertEqual(state1, state2)
     }
 
+    func test_new() {
+        XCTAssertEqual(
+            State.new(size: 8).description,
+            """
+            x00
+            --------
+            --------
+            --------
+            ---ox---
+            ---xo---
+            --------
+            --------
+            --------\n
+            """
+        )
+        XCTAssertEqual(
+            State.new(size: 2).description,
+            """
+            x00
+            ox
+            xo\n
+            """
+        )
+    }
+
     func test_diskAt() {
         let s = State(input: """
             -01
