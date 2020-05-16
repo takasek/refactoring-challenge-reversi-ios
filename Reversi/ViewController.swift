@@ -413,7 +413,9 @@ extension ViewController {
 
         self.turn = state.turn
 
-        playerControls.apply(players: state.players)
+        zip(playerControls, state.players).forEach { (c, p) in
+            c.apply(player: p)
+        }
         try boardView.applyWithoutAnimation(state.board)
 
         updateMessageViews()
@@ -421,11 +423,9 @@ extension ViewController {
     }
 }
 
-extension Array where Element == UISegmentedControl {
-    func apply(players: [Player]) {
-        for (side, player) in zip(Disk.sides, players) {
-            self[side.index].selectedSegmentIndex = player.rawValue
-        }
+extension UISegmentedControl {
+    func apply(player: Player) {
+        selectedSegmentIndex = player.rawValue
     }
 }
 extension BoardView {
