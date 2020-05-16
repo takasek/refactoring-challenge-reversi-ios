@@ -48,23 +48,12 @@ class Repository {
 
     // TODO: 事前条件を狭める
     func saveGame(turn: Disk?, playerControls: [UISegmentedControl], boardView: BoardView) throws {
-        // 以下、ViewControllerのsaveGameの内容を可能な限りそのままコピペ
+        let players = playerControls.map { $0.player() }
+        let board = boardView.board()
 
-        var output: String = ""
-        output += turn.symbol
-        for side in Disk.sides {
-            output += playerControls[side.index].selectedSegmentIndex.description
-        }
-        output += "\n"
+        let state = State(turn: turn, players: players, board: board)
 
-        for y in boardView.yRange {
-            for x in boardView.xRange {
-                output += boardView.diskAt(x: x, y: y).symbol
-            }
-            output += "\n"
-        }
-
-        try dataStore.write(string: output)
+        try dataStore.write(string: state.description)
     }
 
     func loadGame() throws -> State {

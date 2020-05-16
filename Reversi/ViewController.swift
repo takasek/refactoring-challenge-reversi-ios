@@ -427,7 +427,11 @@ extension UISegmentedControl {
     func apply(player: Player) {
         selectedSegmentIndex = player.rawValue
     }
+    func player() -> Player {
+        Player(rawValue: selectedSegmentIndex)!
+    }
 }
+
 extension BoardView {
     struct ApplicationError: Error {}
 
@@ -452,6 +456,17 @@ extension BoardView {
         guard y == height else {
             throw ApplicationError()
         }
+    }
+    func board() -> [[Disk?]] {
+        var board: [[Disk?]] = []
+        for y in yRange {
+            var line: [Disk?] = []
+            for x in xRange {
+                line.append(diskAt(x: x, y: y))
+            }
+            board.append(line)
+        }
+        return board
     }
 }
 // MARK: Additional types
