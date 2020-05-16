@@ -20,6 +20,13 @@ struct State: Equatable {
     let players: [Player]
     let board: [[Disk?]]
 
+    func diskAt(x: Int, y: Int) -> Disk? {
+        guard board.count > y else { return nil }
+        let line = board[y]
+        guard line.count > x else { return nil }
+        return line[x]
+    }
+
     var description: String {
         var output: String = ""
         output += turn.symbol

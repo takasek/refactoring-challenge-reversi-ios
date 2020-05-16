@@ -52,6 +52,21 @@ class StateTests: XCTestCase {
         XCTAssertEqual(state1, state2)
     }
 
+    func test_diskAt() {
+        let s = State(input: """
+            -01
+            oo
+            x-\n
+            """)!
+
+        XCTAssertEqual(s.diskAt(x: 0, y: 0), .light)
+        XCTAssertEqual(s.diskAt(x: 1, y: 0), .light)
+        XCTAssertEqual(s.diskAt(x: 0, y: 1), .dark)
+        XCTAssertEqual(s.diskAt(x: 1, y: 1), nil) // 置かれていない
+        XCTAssertEqual(s.diskAt(x: 2, y: 0), nil) // 範囲外
+        XCTAssertEqual(s.diskAt(x: 0, y: 2), nil) // 範囲外
+    }
+
     func test_countDisks() {
         // TODO: Stateのメソッドとする
         let v = BoardView()
