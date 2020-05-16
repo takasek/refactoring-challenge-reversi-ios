@@ -20,11 +20,86 @@ struct State: Equatable {
     let players: [Player]
     let board: [[Disk?]]
 
+    var yRange: Range<Int> { 0 ..< board.count }
+    var xRange: Range<Int> { 0 ..< (board.first?.count ?? 0) }
+
     func diskAt(x: Int, y: Int) -> Disk? {
-        guard board.count > y else { return nil }
-        let line = board[y]
-        guard line.count > x else { return nil }
-        return line[x]
+        guard xRange.contains(x) && yRange.contains(y) else { return nil }
+        return board[y][x]
+    }
+
+    func countDisks(of side: Disk) -> Int {
+        board.reduce(0) { acc, line in
+            line.reduce(acc) { acc, disk in
+                acc + (disk == side ? 1 : 0 )
+            }
+        }
+    }
+    func sideWithMoreDisks() -> Disk? {
+        let darkCount = countDisks(of: .dark)
+        let lightCount = countDisks(of: .light)
+        if darkCount == lightCount {
+            return nil
+        } else {
+            return darkCount > lightCount ? .dark : .light
+        }
+    }
+    func flippedDiskCoordinatesByPlacingDisk(_ disk: Disk, atX x: Int, y: Int) -> [Point] {
+        let directions = [
+            Point(-1, -1),
+            Point( 0, -1),
+            Point( 1, -1),
+            Point( 1,  0),
+            Point( 1,  1),
+            Point( 0,  1),
+            Point(-1,  0),
+            Point(-1,  1),
+        ]
+
+        guard diskAt(x: x, y: y) == nil else {
+            return []
+        }
+
+        var diskCoordinates: [Point] = []
+
+        for direction in directions {
+            var x = x
+            var y = y
+
+            var diskCoordinatesInLine: [Point] = []
+            flipping: while true {
+                x += direction.x
+                y += direction.y
+
+                switch (disk, diskAt(x: x, y: y)) { // Uses tuples to make patterns exhaustive
+                case (.dark, .some(.dark)), (.light, .some(.light)):
+                    diskCoordinates.append(contentsOf: diskCoordinatesInLine)
+                    break flipping
+                case (.dark, .some(.light)), (.light, .some(.dark)):
+                    diskCoordinatesInLine.append(Point(x, y))
+                case (_, .none):
+                    break flipping
+                }
+            }
+        }
+
+        return diskCoordinates
+    }
+    func canPlaceDisk(_ disk: Disk, atX x: Int, y: Int) -> Bool {
+        !flippedDiskCoordinatesByPlacingDisk(disk, atX: x, y: y).isEmpty
+    }
+    func validMoves(for side: Disk) -> [Point] {
+        var coordinates: [Point] = []
+
+        for y in yRange {
+            for x in xRange {
+                if canPlaceDisk(side, atX: x, y: y) {
+                    coordinates.append(Point(x, y))
+                }
+            }
+        }
+
+        return coordinates
     }
 
     var description: String {

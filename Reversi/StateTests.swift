@@ -68,42 +68,34 @@ class StateTests: XCTestCase {
     }
 
     func test_countDisks() {
-        // TODO: Stateのメソッドとする
-        let v = BoardView()
-        try! v.applyWithoutAnimation(State(_10_10_and: "------x-").board)
+        let s = State(_10_10_and: "------x-")
 
-        XCTAssertEqual(v.countDisks(of: .light), 10)
-        XCTAssertEqual(v.countDisks(of: .dark), 11)
+        XCTAssertEqual(s.countDisks(of: .light), 10)
+        XCTAssertEqual(s.countDisks(of: .dark), 11)
     }
 
     func test_sideWithMoreDisks() {
-        // TODO: Stateのメソッドとする
-        let v = BoardView()
-        try! v.applyWithoutAnimation(State(_10_10_and: "--------").board)
-        XCTAssertEqual(v.sideWithMoreDisks(), nil)
+        var s = State(_10_10_and: "--------")
+        XCTAssertEqual(s.sideWithMoreDisks(), nil)
 
-        try! v.applyWithoutAnimation(State(_10_10_and: "-------o").board)
-        XCTAssertEqual(v.sideWithMoreDisks(), .light)
+        s = State(_10_10_and: "-------o")
+        XCTAssertEqual(s.sideWithMoreDisks(), .light)
 
-        try! v.applyWithoutAnimation(State(_10_10_and: "-------x").board)
-        XCTAssertEqual(v.sideWithMoreDisks(), .dark)
+        s = State(_10_10_and: "-------x")
+        XCTAssertEqual(s.sideWithMoreDisks(), .dark)
     }
 
     func test_flippedDiskCoordinatesByPlacingDisk() {
-        // TODO: Stateのメソッドとする
-        let v = BoardView()
-        try! v.applyWithoutAnimation(State(_10_10_and: "--------").board)
-        XCTAssertEqual(v.flippedDiskCoordinatesByPlacingDisk(.light, atX: 1, y: 1), [
+        let s = State(_10_10_and: "--------")
+        XCTAssertEqual(s.flippedDiskCoordinatesByPlacingDisk(.light, atX: 1, y: 1), [
             Point(2, 2),
             Point(1, 2)
         ])
-        XCTAssertEqual(v.flippedDiskCoordinatesByPlacingDisk(.dark, atX: 1, y: 1), [])
+        XCTAssertEqual(s.flippedDiskCoordinatesByPlacingDisk(.dark, atX: 1, y: 1), [])
     }
 
     func test_canPlaceDisk() {
-        // TODO: Stateのメソッドとする
-        let v = BoardView()
-        try! v.applyWithoutAnimation(State(input: """
+        let s = State(input: """
             -01
             x-------
             -o------
@@ -113,17 +105,15 @@ class StateTests: XCTestCase {
             --------
             --------
             --------\n
-            """)!.board)
+            """)!
 
-        XCTAssertEqual(v.canPlaceDisk(.light, atX: 2, y: 1), false)
-        XCTAssertEqual(v.canPlaceDisk(.light, atX: 2, y: 2), false)
-        XCTAssertEqual(v.canPlaceDisk(.dark, atX: 2, y: 2), true)
+        XCTAssertEqual(s.canPlaceDisk(.light, atX: 2, y: 1), false)
+        XCTAssertEqual(s.canPlaceDisk(.light, atX: 2, y: 2), false)
+        XCTAssertEqual(s.canPlaceDisk(.dark, atX: 2, y: 2), true)
     }
 
     func test_validMoves() {
-        // TODO: Stateのメソッドとする
-        let v = BoardView()
-        try! v.applyWithoutAnimation(State(input: """
+        let s = State(input: """
             -01
             x-------
             -o------
@@ -133,10 +123,10 @@ class StateTests: XCTestCase {
             --------
             --------
             --------\n
-            """)!.board)
+            """)!
 
-        XCTAssertEqual(v.validMoves(for: .light), [])
-        XCTAssertEqual(v.validMoves(for: .dark), [Point(2, 2)])
+        XCTAssertEqual(s.validMoves(for: .light), [])
+        XCTAssertEqual(s.validMoves(for: .dark), [Point(2, 2)])
     }
 }
 
