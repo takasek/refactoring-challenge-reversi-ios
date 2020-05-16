@@ -183,8 +183,6 @@ extension ViewController {
                 cleanUp()
 
                 completion?(finished)
-                try? self.saveGame()
-                self.updateCountLabels()
             }
         } else {
             DispatchQueue.main.async { [weak self] in
@@ -194,8 +192,6 @@ extension ViewController {
                     self.boardView.setDisk(disk, atX: x, y: y, animated: false)
                 }
                 completion?(true)
-                try? self.saveGame()
-                self.updateCountLabels()
             }
         }
     }
@@ -305,6 +301,8 @@ extension ViewController {
             cleanUp()
 
             try! self.placeDisk(turn, atX: x, y: y, animated: true) { [weak self] _ in
+                try? self?.saveGame()
+                self?.updateCountLabels()
                 self?.nextTurn()
             }
         }
@@ -400,6 +398,8 @@ extension ViewController: BoardViewDelegate {
         guard case .manual = Player(rawValue: playerControls[turn.index].selectedSegmentIndex)! else { return }
         // try? because doing nothing when an error occurs
         try? placeDisk(turn, atX: x, y: y, animated: true) { [weak self] _ in
+            try? self?.saveGame()
+            self?.updateCountLabels()
             self?.nextTurn()
         }
     }
