@@ -69,57 +69,21 @@ class Repository {
 
     // TODO: UIコンポーネントの参照をたらい回ししない
     func loadGame(playerControls: [UISegmentedControl], boardView: BoardView) throws -> Disk? {
-        let turn: Disk?
 
-        // 以下、ViewControllerのloadGameの内容を可能な限りそのままコピペ
+        // デシリアライズはState.initに置きかえ可能
 
-        let input = try dataStore.read()
-        var lines: ArraySlice<Substring> = input.split(separator: "\n")[...]
-
-        guard var line = lines.popFirst() else {
+        guard let state = State(input: try dataStore.read()) else {
             throw dataStore.readError()
         }
 
-        do { // turn
-            guard
-                let diskSymbol = line.popFirst(),
-                let disk = Optional<Disk>(symbol: diskSymbol.description)
-                else {
-                    throw dataStore.readError()
-            }
-            turn = disk
-        }
+        // UIへの適用
 
-        // players
-        var players: [Player] = []
-        for _ in Disk.sides {
-            guard
-                let playerSymbol = line.popFirst(),
-                let playerNumber = Int(playerSymbol.description),
-                let player = Player(rawValue: playerNumber)
-                else {
-                    throw dataStore.readError()
-            }
-            players.append(player)
-        }
-
-        var board: [[Disk?]] = []
-        while let line = lines.popFirst() {
-            var boardLine: [Disk?] = []
-            for character in line {
-                boardLine.append(Disk?(symbol: "\(character)").flatMap { $0 })
-            }
-            board.append(boardLine)
-        }
-
-        // デシリアイズとUIへの適用を分離
-
-        for (side, player) in zip(Disk.sides, players) {
+        for (side, player) in zip(Disk.sides, state.players) {
             playerControls[side.index].selectedSegmentIndex = player.rawValue
         }
         do { // board
-            var boardSlice = ArraySlice(board)
-            guard board.count == boardView.height else {
+            var boardSlice = ArraySlice(state.board)
+            guard boardSlice.count == boardView.height else {
                 throw dataStore.readError()
             }
 
@@ -141,6 +105,6 @@ class Repository {
         }
 
         // 値渡しになるのはturnだけ
-        return turn
+        return state.turn
     }
 }
