@@ -445,12 +445,12 @@ extension UISegmentedControl {
 }
 
 extension BoardView {
-    struct ApplicationError: Error {}
+    struct ApplicationError: Error { let reason: String }
 
     func applyWithoutAnimation(_ board: [[Disk?]]) throws {
         var boardSlice = ArraySlice(board)
         guard boardSlice.count == height else {
-            throw ApplicationError()
+            throw ApplicationError(reason: "縦違う: \(boardSlice.count)")
         }
 
         var y = 0
@@ -461,12 +461,12 @@ extension BoardView {
                 x += 1
             }
             guard x == width else {
-                throw ApplicationError()
+                throw ApplicationError(reason: "\(y)行目の横: \(x)")
             }
             y += 1
         }
         guard y == height else {
-            throw ApplicationError()
+            throw ApplicationError(reason: "縦大杉: \(y)")
         }
     }
     func board() -> [[Disk?]] {
