@@ -77,32 +77,8 @@ class Repository {
         }
 
         // UIへの適用
-
-        for (side, player) in zip(Disk.sides, state.players) {
-            playerControls[side.index].selectedSegmentIndex = player.rawValue
-        }
-        do { // board
-            var boardSlice = ArraySlice(state.board)
-            guard boardSlice.count == boardView.height else {
-                throw dataStore.readError()
-            }
-
-            var y = 0
-            while let boardLine = boardSlice.popFirst() {
-                var x = 0
-                for disk in boardLine {
-                    boardView.setDisk(disk, atX: x, y: y, animated: false)
-                    x += 1
-                }
-                guard x == boardView.width else {
-                    throw dataStore.readError()
-                }
-                y += 1
-            }
-            guard y == boardView.height else {
-                throw dataStore.readError()
-            }
-        }
+        playerControls.apply(players: state.players)
+        try boardView.applyWithoutAnimation(state.board)
 
         // 値渡しになるのはturnだけ
         return state.turn

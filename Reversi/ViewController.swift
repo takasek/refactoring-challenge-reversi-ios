@@ -418,6 +418,39 @@ extension ViewController {
     }
 }
 
+extension Array where Element == UISegmentedControl {
+    func apply(players: [Player]) {
+        for (side, player) in zip(Disk.sides, players) {
+            self[side.index].selectedSegmentIndex = player.rawValue
+        }
+    }
+}
+extension BoardView {
+    struct ApplicationError: Error {}
+
+    func applyWithoutAnimation(_ board: [[Disk?]]) throws {
+        var boardSlice = ArraySlice(board)
+        guard boardSlice.count == height else {
+            throw ApplicationError()
+        }
+
+        var y = 0
+        while let boardLine = boardSlice.popFirst() {
+            var x = 0
+            for disk in boardLine {
+                setDisk(disk, atX: x, y: y, animated: false)
+                x += 1
+            }
+            guard x == width else {
+                throw ApplicationError()
+            }
+            y += 1
+        }
+        guard y == height else {
+            throw ApplicationError()
+        }
+    }
+}
 // MARK: Additional types
 
 enum Player: Int {
