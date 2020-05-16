@@ -91,29 +91,29 @@ extension BoardView {
         }
     }
 
-    fileprivate func flippedDiskCoordinatesByPlacingDisk(_ disk: Disk, atX x: Int, y: Int) -> [(Int, Int)] {
+    func flippedDiskCoordinatesByPlacingDisk(_ disk: Disk, atX x: Int, y: Int) -> [Point] {
         let directions = [
-            (x: -1, y: -1),
-            (x:  0, y: -1),
-            (x:  1, y: -1),
-            (x:  1, y:  0),
-            (x:  1, y:  1),
-            (x:  0, y:  1),
-            (x: -1, y:  0),
-            (x: -1, y:  1),
+            Point(-1, -1),
+            Point( 0, -1),
+            Point( 1, -1),
+            Point( 1,  0),
+            Point( 1,  1),
+            Point( 0,  1),
+            Point(-1,  0),
+            Point(-1,  1),
         ]
 
         guard diskAt(x: x, y: y) == nil else {
             return []
         }
 
-        var diskCoordinates: [(Int, Int)] = []
+        var diskCoordinates: [Point] = []
 
         for direction in directions {
             var x = x
             var y = y
 
-            var diskCoordinatesInLine: [(Int, Int)] = []
+            var diskCoordinatesInLine: [Point] = []
             flipping: while true {
                 x += direction.x
                 y += direction.y
@@ -123,7 +123,7 @@ extension BoardView {
                     diskCoordinates.append(contentsOf: diskCoordinatesInLine)
                     break flipping
                 case (.dark, .some(.light)), (.light, .some(.dark)):
-                    diskCoordinatesInLine.append((x, y))
+                    diskCoordinatesInLine.append(Point(x, y))
                 case (_, .none):
                     break flipping
                 }
@@ -150,7 +150,7 @@ extension BoardView {
         for y in yRange {
             for x in xRange {
                 if canPlaceDisk(side, atX: x, y: y) {
-                    coordinates.append(Point(x: x, y: y))
+                    coordinates.append(Point(x, y))
                 }
             }
         }
@@ -178,7 +178,7 @@ extension ViewController {
                 self?.animationCanceller = nil
             }
             animationCanceller = Canceller(cleanUp)
-            animateSettingDisks(at: [(x, y)] + diskCoordinates, to: disk) { [weak self] finished in
+            animateSettingDisks(at: [Point(x, y)] + diskCoordinates, to: disk) { [weak self] finished in
                 guard let self = self else { return }
                 guard let canceller = self.animationCanceller else { return }
                 if canceller.isCancelled { return }
@@ -190,8 +190,8 @@ extension ViewController {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 self.boardView.setDisk(disk, atX: x, y: y, animated: false)
-                for (x, y) in diskCoordinates {
-                    self.boardView.setDisk(disk, atX: x, y: y, animated: false)
+                for p in diskCoordinates {
+                    self.boardView.setDisk(disk, atX: p.x, y: p.y, animated: false)
                 }
                 completion?(true)
             }
@@ -199,22 +199,22 @@ extension ViewController {
     }
 
     private func animateSettingDisks<C: Collection>(at coordinates: C, to disk: Disk, completion: @escaping (Bool) -> Void)
-        where C.Element == (Int, Int)
+        where C.Element == Point
     {
-        guard let (x, y) = coordinates.first else {
+        guard let p = coordinates.first else {
             completion(true)
             return
         }
 
         let animationCanceller = self.animationCanceller!
-        boardView.setDisk(disk, atX: x, y: y, animated: true) { [weak self] finished in
+        boardView.setDisk(disk, atX: p.x, y: p.y, animated: true) { [weak self] finished in
             guard let self = self else { return }
             if animationCanceller.isCancelled { return }
             if finished {
                 self.animateSettingDisks(at: coordinates.dropFirst(), to: disk, completion: completion)
             } else {
-                for (x, y) in coordinates {
-                    self.boardView.setDisk(disk, atX: x, y: y, animated: false)
+                for p in coordinates {
+                    self.boardView.setDisk(disk, atX: p.x, y: p.y, animated: false)
                 }
                 completion(false)
             }

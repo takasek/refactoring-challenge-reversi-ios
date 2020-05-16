@@ -110,7 +110,7 @@ class StateTests: XCTestCase {
             """)!.board)
 
         XCTAssertEqual(v.validMoves(for: .light), [])
-        XCTAssertEqual(v.validMoves(for: .dark), [.init(x: 2, y: 2)])
+        XCTAssertEqual(v.validMoves(for: .dark), [Point(2, 2)])
     }
 }
 
