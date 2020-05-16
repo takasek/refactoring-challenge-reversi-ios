@@ -144,10 +144,12 @@ extension ViewController {
             playerControl.selectedSegmentIndex = Player.manual.rawValue
         }
 
-        updateMessageViews()
-        updateCountLabels()
+        let state = currentState
 
-        try? saveGame()
+        updateMessageViews(state: state)
+        updateCountLabels(state: state)
+
+        try? saveGame(state: state)
     }
 
     /// プレイヤーの行動を待ちます。
@@ -169,13 +171,15 @@ extension ViewController {
 
         turn.flip()
 
-        if currentState.validMoves(for: turn).isEmpty {
-            if currentState.validMoves(for: turn.flipped).isEmpty {
+        let state = currentState
+
+        if state.validMoves(for: turn).isEmpty {
+            if state.validMoves(for: turn.flipped).isEmpty {
                 self.turn = nil
-                updateMessageViews()
+                updateMessageViews(state: currentState)
             } else {
                 self.turn = turn
-                updateMessageViews()
+                updateMessageViews(state: currentState)
 
                 let alertController = UIAlertController(
                     title: "Pass",
@@ -189,7 +193,7 @@ extension ViewController {
             }
         } else {
             self.turn = turn
-            updateMessageViews()
+            updateMessageViews(state: currentState)
             waitForPlayer()
         }
     }
@@ -213,8 +217,9 @@ extension ViewController {
             cleanUp()
 
             try! self.placeDisk(turn, atX: p.x, y: p.y, animated: true) { [weak self] _ in
-                try? self?.saveGame()
-                self?.updateCountLabels()
+                guard let state = self?.currentState else { fatalError() }
+                try? self?.saveGame(state: state)
+                self?.updateCountLabels(state: state)
                 self?.nextTurn()
             }
         }
@@ -227,21 +232,21 @@ extension ViewController {
 
 extension ViewController {
     /// 各プレイヤーの獲得したディスクの枚数を表示します。
-    func updateCountLabels() {
+    func updateCountLabels(state: State) {
         for side in Disk.sides {
-            countLabels[side.index].text = "\(currentState.countDisks(of: side))"
+            countLabels[side.index].text = "\(state.countDisks(of: side))"
         }
     }
 
     /// 現在の状況に応じてメッセージを表示します。
-    func updateMessageViews() {
-        switch turn {
+    func updateMessageViews(state: State) {
+        switch state.turn {
         case .some(let side):
             setMessageDiskViewHidden(false)
             messageDiskView.disk = side
             messageLabel.text = "'s turn"
         case .none:
-            if let winner = currentState.sideWithMoreDisks() {
+            if let winner = state.sideWithMoreDisks() {
                 setMessageDiskViewHidden(true)
                 messageDiskView.disk = winner
                 messageLabel.text = " won"
@@ -287,7 +292,9 @@ extension ViewController {
     @IBAction func changePlayerControlSegment(_ sender: UISegmentedControl) {
         let side: Disk = Disk(index: playerControls.firstIndex(of: sender)!)
 
-        try? saveGame()
+        let state = currentState
+
+        try? saveGame(state: state)
 
         if let canceller = playerCancellers[side] {
             canceller.cancel()
@@ -310,8 +317,9 @@ extension ViewController: BoardViewDelegate {
         guard case .manual = Player(rawValue: playerControls[turn.index].selectedSegmentIndex)! else { return }
         // try? because doing nothing when an error occurs
         try? placeDisk(turn, atX: x, y: y, animated: true) { [weak self] _ in
-            try? self?.saveGame()
-            self?.updateCountLabels()
+            guard let state = self?.currentState else { fatalError() }
+            try? self?.saveGame(state: state)
+            self?.updateCountLabels(state: state)
             self?.nextTurn()
         }
     }
@@ -321,8 +329,8 @@ extension ViewController: BoardViewDelegate {
 
 extension ViewController {
     /// ゲームの状態をファイルに書き出し、保存します。
-    func saveGame() throws {
-        try repository.saveGame(state: currentState)
+    func saveGame(state: State) throws {
+        try repository.saveGame(state: state)
     }
 
     /// ゲームの状態をファイルから読み込み、復元します。
@@ -336,8 +344,8 @@ extension ViewController {
         }
         try boardView.applyWithoutAnimation(state.board)
 
-        updateMessageViews()
-        updateCountLabels()
+        updateMessageViews(state: state)
+        updateCountLabels(state: state)
     }
 }
 
