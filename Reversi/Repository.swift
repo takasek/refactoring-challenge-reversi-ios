@@ -44,6 +44,12 @@ class Repository {
         self.dataStore = dataStore
     }
 
+    func newGame() throws -> State {
+        let state = State.new(size: 8)
+        try saveGame(state: state)
+        return state
+    }
+
     func saveGame(state: State) throws {
         try dataStore.write(string: state.description)
     }

@@ -39,7 +39,8 @@ class ViewController: UIViewController {
         boardView.delegate = self
         messageDiskSize = messageDiskSizeConstraint.constant
 
-        let state = (try? repository.loadGame()) ?? newGame()
+        let state = (try? repository.loadGame())
+            ?? (try! repository.newGame())
         apply(state: state)
     }
 
@@ -122,12 +123,6 @@ extension ViewController {
 // MARK: Game management
 
 extension ViewController {
-    /// ゲームの状態を初期化し、新しいゲームを開始します。
-    func newGame() -> State {
-        let state = State.new(size: 8)
-
-        return state
-    }
     func apply(state: State) {
         currentState = state
         try! boardView.applyWithoutAnimation(state.board)
@@ -267,8 +262,7 @@ extension ViewController {
                 self.playerCancellers.removeValue(forKey: side)
             }
 
-            let state = self.newGame()
-            try? self.repository.saveGame(state: state)
+            let state = try! self.repository.newGame()
             self.apply(state: state)
             self.waitForPlayer()
         })
