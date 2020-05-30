@@ -77,6 +77,11 @@ class StateTests: XCTestCase {
             xo\n
             """
         )
+
+        let boardView = BoardView()
+        boardView.reset()
+
+        XCTAssertEqual(boardView.board(), State.new(size: 8).board)
     }
 
     func test_diskAt() {
