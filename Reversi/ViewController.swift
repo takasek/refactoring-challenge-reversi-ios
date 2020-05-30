@@ -26,8 +26,7 @@ class ViewController: UIViewController {
 
     private let repository = Repository(dataStore: DataStoreImpl())
 
-    /// どちらの色のプレイヤーのターンかを表します。ゲーム終了時は `nil` です。
-    private var turn: Disk? = .dark
+    var currentState = State.new(size: 8)
 
     private var animationCanceller: Canceller?
     private var isAnimating: Bool { animationCanceller != nil }
@@ -60,16 +59,6 @@ class ViewController: UIViewController {
 // MARK: Reversi logics
 
 extension ViewController {
-    /// 暫定。いずれ殺す。
-    // TODO: state自身をstoredにできたときには、BoardView.diskAtも削除する
-    var currentState: State {
-        State(
-            turn: turn,
-            playerA: playerControls[0].player(),
-            playerB: playerControls[1].player(),
-            board: boardView.board()
-        )
-    }
     /// `x`, `y` で指定されたセルに `disk` を置きます。
     /// - Parameter x: セルの列です。
     /// - Parameter y: セルの行です。
@@ -139,14 +128,10 @@ extension ViewController {
     /// ゲームの状態を初期化し、新しいゲームを開始します。
     func newGame() {
         boardView.reset()
-        turn = .dark
-
         for playerControl in playerControls {
             playerControl.selectedSegmentIndex = Player.manual.rawValue
         }
-
-        let state = currentState
-
+        let state = State.new(size: 8)
         updateMessageViews(state: state)
         updateCountLabels(state: state)
 
@@ -155,7 +140,7 @@ extension ViewController {
 
     /// プレイヤーの行動を待ちます。
     func waitForPlayer() {
-        guard let turn = self.turn else { return }
+        guard let turn = currentState.turn else { return }
         switch Player(rawValue: playerControls[turn.index].selectedSegmentIndex)! {
         case .manual:
             break
@@ -168,7 +153,7 @@ extension ViewController {
     /// もし、次のプレイヤーに有効な手が存在しない場合、パスとなります。
     /// 両プレイヤーに有効な手がない場合、ゲームの勝敗を表示します。
     func nextTurn() {
-        guard var turn = self.turn else { return }
+        guard var turn = currentState.turn else { return }
 
         turn.flip()
 
@@ -176,10 +161,10 @@ extension ViewController {
 
         if state.validMoves(for: turn).isEmpty {
             if state.validMoves(for: turn.flipped).isEmpty {
-                self.turn = nil
+                self.currentState.turn = nil
                 updateMessageViews(state: currentState)
             } else {
-                self.turn = turn
+                self.currentState.turn = turn
                 updateMessageViews(state: currentState)
 
                 let alertController = UIAlertController(
@@ -193,7 +178,7 @@ extension ViewController {
                 present(alertController, animated: true)
             }
         } else {
-            self.turn = turn
+            self.currentState.turn = turn
             updateMessageViews(state: currentState)
             waitForPlayer()
         }
@@ -201,7 +186,7 @@ extension ViewController {
 
     /// "Computer" が選択されている場合のプレイヤーの行動を決定します。
     func playTurnOfComputer() {
-        guard let turn = self.turn else { preconditionFailure() }
+        guard let turn = self.currentState.turn else { preconditionFailure() }
         let p = currentState.validMoves(for: turn).randomElement()!
 
         playerActivityIndicators[turn.index].startAnimating()
@@ -301,7 +286,7 @@ extension ViewController {
             canceller.cancel()
         }
 
-        if !isAnimating, side == turn, case .computer = Player(rawValue: sender.selectedSegmentIndex)! {
+        if !isAnimating, side == currentState.turn, case .computer = Player(rawValue: sender.selectedSegmentIndex)! {
             playTurnOfComputer()
         }
     }
@@ -313,7 +298,7 @@ extension ViewController: BoardViewDelegate {
     /// - Parameter x: セルの列です。
     /// - Parameter y: セルの行です。
     func boardView(_ boardView: BoardView, didSelectCellAtX x: Int, y: Int) {
-        guard let turn = turn else { return }
+        guard let turn = currentState.turn else { return }
         if isAnimating { return }
         guard case .manual = Player(rawValue: playerControls[turn.index].selectedSegmentIndex)! else { return }
         // try? because doing nothing when an error occurs
@@ -338,7 +323,7 @@ extension ViewController {
     func loadGame() throws {
         let state = try repository.loadGame()
 
-        self.turn = state.turn
+        self.currentState = state
 
         playerControls[0].apply(player: state.playerA)
         playerControls[1].apply(player: state.playerB)
