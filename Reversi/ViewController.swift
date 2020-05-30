@@ -136,9 +136,8 @@ extension ViewController {
     func runSideEffect_newGame(state: State) {
         currentState = state
         try! boardView.applyWithoutAnimation(state.board)
-        for playerControl in playerControls {
-            playerControl.selectedSegmentIndex = Player.manual.rawValue
-        }
+        playerControls[0].apply(player: state.playerA)
+        playerControls[1].apply(player: state.playerB)
         updateMessageViews(state: state)
         updateCountLabels(state: state)
     }
