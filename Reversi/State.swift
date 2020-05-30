@@ -26,6 +26,17 @@ struct State: Equatable {
     var yRange: Range<Int> { 0 ..< board.count }
     var xRange: Range<Int> { 0 ..< (board.first?.count ?? 0) }
 
+    func player(for turn: Disk) -> Player {
+        switch turn {
+        case .dark: return playerA
+        case .light: return playerB
+        }
+    }
+    var currentPlayer: Player? {
+        turn.map(player(for:))
+    }
+
+
     func diskAt(x: Int, y: Int) -> Disk? {
         guard xRange.contains(x) && yRange.contains(y) else { return nil }
         return board[y][x]

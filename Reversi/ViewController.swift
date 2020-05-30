@@ -139,8 +139,8 @@ extension ViewController {
 
     /// プレイヤーの行動を待ちます。
     func waitForPlayer() {
-        guard let turn = currentState.turn else { return }
-        switch Player(rawValue: playerControls[turn.index].selectedSegmentIndex)! {
+        guard let player = currentState.currentPlayer else { return }
+        switch player {
         case .manual:
             break
         case .computer:
@@ -299,9 +299,12 @@ extension ViewController: BoardViewDelegate {
     /// - Parameter x: セルの列です。
     /// - Parameter y: セルの行です。
     func boardView(_ boardView: BoardView, didSelectCellAtX x: Int, y: Int) {
-        guard let turn = currentState.turn else { return }
         if isAnimating { return }
-        guard case .manual = Player(rawValue: playerControls[turn.index].selectedSegmentIndex)! else { return }
+
+        guard
+            case .manual? = currentState.currentPlayer,
+            let turn = currentState.turn
+            else { return }
         // try? because doing nothing when an error occurs
         try? placeDisk(turn, atX: x, y: y, animated: true) { [weak self] _ in
             guard let state = self?.currentState else { fatalError() }
