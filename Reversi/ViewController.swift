@@ -39,13 +39,8 @@ class ViewController: UIViewController {
         boardView.delegate = self
         messageDiskSize = messageDiskSizeConstraint.constant
 
-        do {
-            let state = try loadGame()
-            try runSideEffect_loadGame(state: state)
-        } catch _ {
-            let state = newGame()
-            runSideEffect_newGame(state: state)
-        }
+        let state = (try? loadGame()) ?? newGame()
+        apply(state: state)
     }
 
     private var viewHasAppeared: Bool = false
@@ -133,7 +128,7 @@ extension ViewController {
 
         return state
     }
-    func runSideEffect_newGame(state: State) {
+    func apply(state: State) {
         currentState = state
         try! boardView.applyWithoutAnimation(state.board)
         playerControls[0].apply(player: state.playerA)
@@ -274,7 +269,7 @@ extension ViewController {
 
             let state = self.newGame()
             try? self.saveGame(state: state)
-            self.runSideEffect_newGame(state: state)
+            self.apply(state: state)
             self.waitForPlayer()
         })
         present(alertController, animated: true)
@@ -328,17 +323,6 @@ extension ViewController {
     /// ゲームの状態をファイルから読み込み、復元します。
     func loadGame() throws -> State {
         try repository.loadGame()
-    }
-    func runSideEffect_loadGame(state: State) throws {
-        currentState = state
-
-        playerControls[0].apply(player: state.playerA)
-        playerControls[1].apply(player: state.playerB)
-
-        try boardView.applyWithoutAnimation(state.board)
-
-        updateMessageViews(state: state)
-        updateCountLabels(state: state)
     }
 }
 
