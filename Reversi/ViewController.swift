@@ -127,11 +127,16 @@ extension ViewController {
 extension ViewController {
     /// ゲームの状態を初期化し、新しいゲームを開始します。
     func newGame() {
-        boardView.reset()
+        let state = State.new(size: 8)
+
+        runSideEffect_newGame(state: state)
+    }
+    func runSideEffect_newGame(state: State) {
+        currentState = state
+        try! boardView.applyWithoutAnimation(state.board)
         for playerControl in playerControls {
             playerControl.selectedSegmentIndex = Player.manual.rawValue
         }
-        let state = State.new(size: 8)
         updateMessageViews(state: state)
         updateCountLabels(state: state)
 
@@ -323,7 +328,10 @@ extension ViewController {
     func loadGame() throws {
         let state = try repository.loadGame()
 
-        self.currentState = state
+        try runSideEffect_loadGame(state: state)
+    }
+    func runSideEffect_loadGame(state: State) throws {
+        currentState = state
 
         playerControls[0].apply(player: state.playerA)
         playerControls[1].apply(player: state.playerB)
