@@ -141,8 +141,6 @@ extension ViewController {
         }
         updateMessageViews(state: state)
         updateCountLabels(state: state)
-
-        try? saveGame(state: state)
     }
 
     /// プレイヤーの行動を待ちます。
@@ -276,6 +274,7 @@ extension ViewController {
             }
 
             let state = self.newGame()
+            try? self.saveGame(state: state)
             self.runSideEffect_newGame(state: state)
             self.waitForPlayer()
         })
