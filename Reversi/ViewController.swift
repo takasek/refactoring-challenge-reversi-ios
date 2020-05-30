@@ -39,7 +39,7 @@ class ViewController: UIViewController {
         boardView.delegate = self
         messageDiskSize = messageDiskSizeConstraint.constant
 
-        let state = (try? loadGame()) ?? newGame()
+        let state = (try? repository.loadGame()) ?? newGame()
         apply(state: state)
     }
 
@@ -203,7 +203,7 @@ extension ViewController {
 
             try! self.placeDisk(turn, atX: p.x, y: p.y, animated: true) { [weak self] _ in
                 guard let state = self?.currentState else { fatalError() }
-                try? self?.saveGame(state: state)
+                try? self?.repository.saveGame(state: state)
                 self?.updateCountLabels(state: state)
                 self?.nextTurn()
             }
@@ -268,7 +268,7 @@ extension ViewController {
             }
 
             let state = self.newGame()
-            try? self.saveGame(state: state)
+            try? self.repository.saveGame(state: state)
             self.apply(state: state)
             self.waitForPlayer()
         })
@@ -281,7 +281,7 @@ extension ViewController {
 
         let state = currentState
 
-        try? saveGame(state: state)
+        try? repository.saveGame(state: state)
 
         if let canceller = playerCancellers[side] {
             canceller.cancel()
@@ -308,7 +308,7 @@ extension ViewController: BoardViewDelegate {
         // try? because doing nothing when an error occurs
         try? placeDisk(turn, atX: x, y: y, animated: true) { [weak self] _ in
             guard let state = self?.currentState else { fatalError() }
-            try? self?.saveGame(state: state)
+            try? self?.repository.saveGame(state: state)
             self?.updateCountLabels(state: state)
             self?.nextTurn()
         }
@@ -317,24 +317,9 @@ extension ViewController: BoardViewDelegate {
 
 // MARK: Save and Load
 
-extension ViewController {
-    /// ゲームの状態をファイルに書き出し、保存します。
-    func saveGame(state: State) throws {
-        try repository.saveGame(state: state)
-    }
-
-    /// ゲームの状態をファイルから読み込み、復元します。
-    func loadGame() throws -> State {
-        try repository.loadGame()
-    }
-}
-
 extension UISegmentedControl {
     func apply(player: Player) {
         selectedSegmentIndex = player.rawValue
-    }
-    func player() -> Player {
-        Player(rawValue: selectedSegmentIndex)!
     }
 }
 
@@ -362,17 +347,6 @@ extension BoardView {
         guard y == height else {
             throw ApplicationError(reason: "縦大杉: \(y)")
         }
-    }
-    func board() -> [[Disk?]] {
-        var board: [[Disk?]] = []
-        for y in yRange {
-            var line: [Disk?] = []
-            for x in xRange {
-                line.append(diskAt(x: x, y: y))
-            }
-            board.append(line)
-        }
-        return board
     }
 }
 // MARK: Additional types
