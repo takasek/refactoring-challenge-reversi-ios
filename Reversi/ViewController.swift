@@ -40,9 +40,11 @@ class ViewController: UIViewController {
         messageDiskSize = messageDiskSizeConstraint.constant
 
         do {
-            try loadGame()
+            let state = try loadGame()
+            try runSideEffect_loadGame(state: state)
         } catch _ {
-            newGame()
+            let state = newGame()
+            runSideEffect_newGame(state: state)
         }
     }
 
@@ -126,10 +128,10 @@ extension ViewController {
 
 extension ViewController {
     /// ゲームの状態を初期化し、新しいゲームを開始します。
-    func newGame() {
+    func newGame() -> State {
         let state = State.new(size: 8)
 
-        runSideEffect_newGame(state: state)
+        return state
     }
     func runSideEffect_newGame(state: State) {
         currentState = state
@@ -273,7 +275,8 @@ extension ViewController {
                 self.playerCancellers.removeValue(forKey: side)
             }
 
-            self.newGame()
+            let state = self.newGame()
+            self.runSideEffect_newGame(state: state)
             self.waitForPlayer()
         })
         present(alertController, animated: true)
@@ -325,10 +328,8 @@ extension ViewController {
     }
 
     /// ゲームの状態をファイルから読み込み、復元します。
-    func loadGame() throws {
-        let state = try repository.loadGame()
-
-        try runSideEffect_loadGame(state: state)
+    func loadGame() throws -> State {
+        try repository.loadGame()
     }
     func runSideEffect_loadGame(state: State) throws {
         currentState = state
